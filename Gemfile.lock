@@ -1,0 +1,20 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rexml (3.2.2)
+    rubyzip (1.2.3)
+    zlib (1.0.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rexml
+  rubyzip
+  zlib
+
+RUBY VERSION
+   ruby 2.6.3p62
+
+BUNDLED WITH
+   2.0.2
