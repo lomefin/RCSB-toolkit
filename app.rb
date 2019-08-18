@@ -90,6 +90,9 @@ class App
     sites.each do |site|
       cols = []
       vals = []
+      res = db.execute("SELECT atom_site_id, protein_name FROM atom_sites WHERE atom_site_id = '#{site[:atom_site_id]}' AND protein_name = '#{site[:protein_name]}'")
+      next if res.length > 0
+
       site.each do |key, val|
         cols << key
         vals << "'#{val}'"
@@ -106,6 +109,7 @@ class App
     puts 'Parsing...'
     doc = REXML::Document.new protein_xml
     sites = extract_atom_sites(doc, protein_name)
+    puts 'Persising in DB...'
     save_atom_sites(sites)
   end
 
