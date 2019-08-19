@@ -49,7 +49,7 @@ class App
     rows = db.execute <<-SQL
       SELECT name FROM sqlite_master WHERE type='table' AND name='atom_sites';
     SQL
-    rows.length > 0
+    !rows.empty?
   end
 
   def build_atomsites_table(db)
@@ -74,7 +74,8 @@ class App
         label_seq_id varchar(40),
         occupancy varchar(40),
         pdbx_pdb_model_num varchar(40),
-        type_symbol varchar(40)
+        type_symbol varchar(40),
+        hidro_score numeric
       );
     SQL
   end
@@ -85,20 +86,34 @@ class App
     build_atomsites_table(db) unless atomsites_table_exists?(db)
   end
 
+  HIDRO_SCORES = { 'GLY' => -0.4, 'PRO' => -1.6, 'LEU' => 3.8, 'SER' => -0.8, 'VAL' => 4.2, 'ASP' => -3.5, 'ALA' => 1.8, 'PHE' => 2.8,
+                   'LYS' => -3.9, 'ILE' => 4.5, 'GLU' => -3.5, 'TRP' => -0.9, 'ARG' => -4.5, 'ASN' => -3.5, 'THR' => -0.7, 'HIS' => -3.2,
+                   'TYR' => -1.3, 'MET' => 1.9, 'GLN' => -3.5, 'CYS' => 2.5 }.freeze
+
   def save_atom_sites(sites)
     db = SQLite3::Database.new 'atomsites.db'
     sites.each do |site|
       cols = []
       vals = []
-      res = db.execute("SELECT atom_site_id, protein_name FROM atom_sites WHERE atom_site_id = '#{site[:atom_site_id]}' AND protein_name = '#{site[:protein_name]}'")
-      next if res.length > 0
+      upt_sql = <<-"SQL"
+        SELECT atom_site_id, protein_name
+        FROM atom_sites
+        WHERE
+          atom_site_id = '#{site[:atom_site_id]}'
+          AND protein_name = '#{site[:protein_name]}'
+      SQL
+      next unless db.execute(upt_sql).empty?
 
+      site[:hidro_score] = HIDRO_SCORES[site[:label_comp_id]]
+      sleep(0.1)
       site.each do |key, val|
         cols << key
         vals << "'#{val}'"
       end
+
       cols_str = "(#{cols.join(',')})"
       sql = "INSERT INTO atom_sites #{cols_str} values (#{vals.join(',')})"
+      puts sql
       db.execute(sql)
     end
   end
