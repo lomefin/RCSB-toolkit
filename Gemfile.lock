@@ -1,8 +1,9 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    rexml (3.2.2)
+    rexml (3.2.5)
     rubyzip (1.2.3)
+    sqlite3 (1.4.2)
     zlib (1.0.0)
 
 PLATFORMS
@@ -11,6 +12,7 @@ PLATFORMS
 DEPENDENCIES
   rexml
   rubyzip
+  sqlite3
   zlib
 
 RUBY VERSION
